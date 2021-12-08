@@ -1,0 +1,7 @@
+# Source: https://stackoverflow.com/a/932982
+# Ignore everything in this directory
+*
+# Except this file
+!.gitignore
+# and the .embeedignore file
+!.embeedignore
