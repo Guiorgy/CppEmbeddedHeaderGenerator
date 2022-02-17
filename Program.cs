@@ -1,6 +1,7 @@
 ﻿using GitignoreParserNet;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -23,6 +24,18 @@ namespace CppEmbeededHeaderGenerator
                 files.AddRange(ListFileNames(subDir.FullName));
 
             return files;
+        }
+
+        [SuppressMessage("Major Code Smell", "S125:Sections of code should not be commented out", Justification = "May revert in the future.")]
+        static string LineSeparator
+        {
+            get
+            {
+                /*return // On Windows use "\r\n", on OSX use "\r", otherwise (on Linux and BSD) use "\n"
+                    RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? @"\r\n" :
+                        RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? @"\r" : @"\n";*/
+                return @"\n";
+            }
         }
 
         static void Main(string[] args)
@@ -61,9 +74,7 @@ namespace CppEmbeededHeaderGenerator
             writer.WriteLine("\tstd::string empty = \"\";");
 
             char dirSep = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? '\\' : '/';
-            string lineSep =
-                RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? @"\r\n" :
-                    RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? @"\r" : @"\n";
+            string lineSep = LineSeparator;
             foreach (string filePath in accepted)
             {
                 string name = filePath[(filePath.LastIndexOf(dirSep) + 1)..];
