@@ -2,10 +2,12 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0-windows</TargetFramework>
     <Authors>Guiorgy</Authors>
     <Company>Ecopre</Company>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PlatformTarget>x64</PlatformTarget>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">

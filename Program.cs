@@ -9,13 +9,13 @@ using System.Text.RegularExpressions;
 
 namespace CppEmbeededHeaderGenerator
 {
-    class Program
+    public static class Program
     {
         static List<string> ListFileNames(string directoryPath)
         {
-            DirectoryInfo dir = new DirectoryInfo(directoryPath);
+            DirectoryInfo dir = new(directoryPath);
 
-            List<string> files = new List<string>();
+            List<string> files = new();
             foreach (FileInfo file in dir.GetFiles())
                 files.Add(file.FullName);
 
@@ -49,71 +49,69 @@ namespace CppEmbeededHeaderGenerator
                 outputDir.Create();
             const string resourceFilePath = @"..\..\..\Output\embeeded.h";
 
-            using (StreamWriter writer = new StreamWriter(resourceFilePath, false, Encoding.UTF8))
+            using StreamWriter writer = new(resourceFilePath, false, Encoding.UTF8);
+            writer.WriteLine("#ifndef EMBEEDED_RESOURCES_HEADER_FILE");
+            writer.WriteLine("#define EMBEEDED_RESOURCES_HEADER_FILE");
+            writer.WriteLine("");
+            writer.WriteLine("#include <string>");
+            writer.WriteLine("");
+            writer.WriteLine("namespace embeed");
+            writer.WriteLine("{");
+            writer.WriteLine("");
+            writer.WriteLine("\tstd::string empty = \"\";");
+
+            char dirSep = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? '\\' : '/';
+            string lineSep =
+                RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? @"\r\n" :
+                    RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? @"\r" : @"\n";
+            foreach (string filePath in accepted)
             {
-                writer.WriteLine("#ifndef EMBEEDED_RESOURCES_HEADER_FILE");
-                writer.WriteLine("#define EMBEEDED_RESOURCES_HEADER_FILE");
-                writer.WriteLine("");
-                writer.WriteLine("#include <string>");
-                writer.WriteLine("");
-                writer.WriteLine("namespace embeed");
-                writer.WriteLine("{");
-                writer.WriteLine("");
-                writer.WriteLine("\tstd::string empty = \"\";");
+                string name = filePath[(filePath.LastIndexOf(dirSep) + 1)..];
+                bool isAscii = name.StartsWith("ascii_");
+                if (isAscii) name = name[6..];
+                string resname =
+                    name
+                    .Replace(' ', '_')
+                    .Replace('-', '_')
+                    .Replace('.', '_');
+                if (Regex.IsMatch(resname, @"^\d"))
+                    resname = '_' + resname;
 
-                char dirSep = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? '\\' : '/';
-                string lineSep =
-                    RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? @"\r\n" :
-                        RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? @"\r" : @"\n";
-                foreach (string filePath in accepted)
+                Console.WriteLine($"Creating a {(isAscii ? "string" : "byte array")} resource with name \"{resname}\"");
+                writer.WriteLine($"\textern __declspec(selectany) std::string {resname}_name = \"{name}\";");
+
+                if (isAscii)
                 {
-                    string name = filePath[(filePath.LastIndexOf(dirSep) + 1)..];
-                    bool isAscii = name.StartsWith("ascii_");
-                    if (isAscii) name = name[6..];
-                    string resname =
-                        name
-                        .Replace(' ', '_')
-                        .Replace('-', '_')
-                        .Replace('.', '_');
-                    if (Regex.IsMatch(resname, @"^\d"))
-                        resname = '_' + resname;
-
-                    Console.WriteLine($"Creating a {(isAscii ? "string" : "byte array")} resource with name \"{resname}\"");
-                    writer.WriteLine($"\textern __declspec(selectany) std::string {resname}_name = \"{name}\";");
-
-                    if (isAscii)
+                    writer.WriteLine($"\textern __declspec(selectany) std::string {resname} = empty");
+                    foreach (string line in File.ReadLines(filePath, Encoding.ASCII))
                     {
-                        writer.WriteLine($"\textern __declspec(selectany) std::string {resname} = empty");
-                        foreach (string line in File.ReadLines(filePath, Encoding.ASCII))
-                        {
-                            var eline =
-                                line
-                                .Replace(@"\", @"\\")
-                                .Replace(@"""", @"\""");
-                            writer.WriteLine($"\t\t+ \"{eline}{lineSep}\"");
-                        }
-                        writer.WriteLine($"\t\t;");
+                        var eline =
+                            line
+                            .Replace(@"\", @"\\")
+                            .Replace(@"""", @"\""");
+                        writer.WriteLine($"\t\t+ \"{eline}{lineSep}\"");
                     }
-                    else
-                    {
-                        bool first = true;
-                        byte[] bytes = File.ReadAllBytes(filePath);
-                        writer.WriteLine($"\textern __declspec(selectany) int {resname}_size = {bytes.Length};");
-                        writer.Write($"\textern __declspec(selectany) char {resname}[{bytes.Length}] = {{");
-                        foreach (byte b in bytes)
-                        {
-                            writer.Write($"{(first ? "" : ",")} {b}");
-                            first = false;
-                        }
-                        writer.WriteLine($" }};");
-                    }
+                    writer.WriteLine($"\t\t;");
                 }
-
-                writer.WriteLine("");
-                writer.WriteLine("}");
-                writer.WriteLine("");
-                writer.WriteLine("#endif");
+                else
+                {
+                    bool first = true;
+                    byte[] bytes = File.ReadAllBytes(filePath);
+                    writer.WriteLine($"\textern __declspec(selectany) int {resname}_size = {bytes.Length};");
+                    writer.Write($"\textern __declspec(selectany) char {resname}[{bytes.Length}] = {{");
+                    foreach (byte b in bytes)
+                    {
+                        writer.Write($"{(first ? "" : ",")} {b}");
+                        first = false;
+                    }
+                    writer.WriteLine($" }};");
+                }
             }
+
+            writer.WriteLine("");
+            writer.WriteLine("}");
+            writer.WriteLine("");
+            writer.WriteLine("#endif");
         }
     }
 }
