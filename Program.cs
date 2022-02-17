@@ -98,7 +98,7 @@ namespace CppEmbeededHeaderGenerator
                     bool first = true;
                     byte[] bytes = File.ReadAllBytes(filePath);
                     writer.WriteLine($"\textern __declspec(selectany) int {resname}_size = {bytes.Length};");
-                    writer.Write($"\textern __declspec(selectany) char {resname}[{bytes.Length}] = {{");
+                    writer.Write($"\textern __declspec(selectany) unsigned char {resname}[{bytes.Length}] = {{");
                     foreach (byte b in bytes)
                     {
                         writer.Write($"{(first ? "" : ",")} {b}");
