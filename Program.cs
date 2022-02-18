@@ -75,21 +75,39 @@ namespace CppEmbeddedHeaderGenerator
 
             char dirSep = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? '\\' : '/';
             string lineSep = LineSeparator;
+            int embeddedDirPathLen = new DirectoryInfo(embeddedPath).FullName.Length + 1;
             foreach (string filePath in accepted)
             {
-                string name = filePath[(filePath.LastIndexOf(dirSep) + 1)..];
-                bool isAscii = name.StartsWith("ascii_");
-                if (isAscii) name = name[6..];
+                string name = filePath[embeddedDirPathLen..];
+                bool isAscii = false;
+                if (name.Contains(dirSep))
+                {
+                    var fileName = name[(name.LastIndexOf(dirSep) + 1)..];
+                    if (fileName.StartsWith("ascii_"))
+                    {
+                        name = name[..(name.LastIndexOf(dirSep) + 1)] + fileName[6..];
+                        isAscii = true;
+                    }
+                }
+                else
+                {
+                    if (name.StartsWith("ascii_"))
+                    {
+                        name = name[6..];
+                        isAscii = true;
+                    }
+                }
                 string resname =
                     name
                     .Replace(' ', '_')
                     .Replace('-', '_')
-                    .Replace('.', '_');
+                    .Replace('.', '_')
+                    .Replace($"{dirSep}", "_dirSep_");
                 if (Regex.IsMatch(resname, @"^\d"))
                     resname = '_' + resname;
 
                 Console.WriteLine($"Creating a {(isAscii ? "string" : "byte array")} resource with name \"{resname}\"");
-                writer.WriteLine($"\textern __declspec(selectany) std::string {resname}_name = \"{name}\";");
+                writer.WriteLine($"\textern __declspec(selectany) std::string {resname}_name = \"{name.Replace('\\', '/')}\";");
 
                 if (isAscii)
                 {

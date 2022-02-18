@@ -24,12 +24,27 @@ namespace CppSampleConsoleAppGenerator
             string scaCodeFilePath = Path.Combine(scaProjectDir[0].FullName, scaCodeFileName);
 
             var code = new StringBuilder()
+                .AppendLine("// This file uses the <filesystem> header, thus it needs to be compiled with a compiler that suports c++17.")
                 .AppendLine("#include \"../../Output/embedded.h\"")
                 .AppendLine("#include <iostream>")
                 .AppendLine("#include <fstream>")
+                .AppendLine("#include <string>")
+                .AppendLine("#include <filesystem>")
+                .AppendLine()
+                .AppendLine("bool getDirectory(std::string const& filePath, std::string& directoryPath)")
+                .AppendLine("{")
+                .AppendLine("\tstd::string::size_type pos = filePath.find_last_of('/');")
+                .AppendLine("\tif (pos != std::string::npos)")
+                .AppendLine("\t{")
+                .AppendLine("\t\tdirectoryPath = filePath.substr(0, pos);")
+                .AppendLine("\t\treturn true;")
+                .AppendLine("\t}")
+                .AppendLine("\treturn false;")
+                .AppendLine("}")
                 .AppendLine()
                 .AppendLine("int main()")
                 .AppendLine("{")
+                .AppendLine("\tstd::string dirPath;")
                 .AppendLine("\tstd::ofstream file;")
                 .AppendLine();
 
@@ -37,6 +52,11 @@ namespace CppSampleConsoleAppGenerator
             foreach (var resource in resources)
             {
                 code.AppendLine($"\tstd::cout << \"Extracting the \\\"\" << embedded::{resource.FileName} << \"\\\" resource file.\" << std::endl;");
+
+                code
+                    .AppendLine($"\tif (getDirectory(embedded::{resource.FileName}, dirPath))")
+                    .AppendLine("\tstd::filesystem::create_directory(dirPath);");
+
                 switch (resource.Type)
                 {
                     case Resource.ResourceType.ASCII:
