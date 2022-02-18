@@ -93,15 +93,20 @@ namespace CppEmbeededHeaderGenerator
 
                 if (isAscii)
                 {
-                    writer.WriteLine($"\textern __declspec(selectany) std::string {resname} = empty");
-                    foreach (string line in File.ReadLines(filePath, Encoding.ASCII))
+                    static string PrepareLane(string line)
                     {
-                        var eline =
-                            line
+                        return line
                             .Replace(@"\", @"\\")
                             .Replace(@"""", @"\""");
-                        writer.WriteLine($"\t\t+ \"{eline}{lineSep}\"");
                     }
+                    writer.WriteLine($"\textern __declspec(selectany) std::string {resname} = empty");
+                    var lines = File.ReadLines(filePath, Encoding.ASCII).ToList();
+                    for (int i = 0; i < lines.Count - 1; i++)
+                    {
+                        var line = lines[i];
+                        writer.WriteLine($"\t\t+ \"{PrepareLane(line)}{lineSep}\"");
+                    }
+                    writer.WriteLine($"\t\t+ \"{PrepareLane(lines.Last())}\"");
                     writer.WriteLine($"\t\t;");
                 }
                 else
