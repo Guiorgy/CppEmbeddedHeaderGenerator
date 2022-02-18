@@ -15,6 +15,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Output\**" />
+    <Compile Remove="SampleConsoleApplication\**" />
+    <Compile Remove="Tests\**" />
+    <EmbeddedResource Remove="Output\**" />
+    <EmbeddedResource Remove="SampleConsoleApplication\**" />
+    <EmbeddedResource Remove="Tests\**" />
+    <None Remove="Output\**" />
+    <None Remove="SampleConsoleApplication\**" />
+    <None Remove="Tests\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="LICENSE">
       <Pack>True</Pack>
       <PackagePath></PackagePath>
