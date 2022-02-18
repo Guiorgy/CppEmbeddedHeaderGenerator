@@ -12,7 +12,7 @@ namespace CppEmbeededHeaderGenerator
 {
     public static class Program
     {
-        static List<string> ListFileNames(string directoryPath)
+        static List<string> ListFilePaths(string directoryPath)
         {
             DirectoryInfo dir = new(directoryPath);
 
@@ -21,7 +21,7 @@ namespace CppEmbeededHeaderGenerator
                 files.Add(file.FullName);
 
             foreach (DirectoryInfo subDir in dir.GetDirectories())
-                files.AddRange(ListFileNames(subDir.FullName));
+                files.AddRange(ListFilePaths(subDir.FullName));
 
             return files;
         }
@@ -42,7 +42,7 @@ namespace CppEmbeededHeaderGenerator
         {
             const string embeededPath = @"..\..\..\Embeeded";
 
-            var files = ListFileNames(embeededPath);
+            var files = ListFilePaths(embeededPath);
 
             var enbeedignoreFile = new FileInfo(Path.Combine(embeededPath, ".embeedignore"));
             string enbeedignore = File.ReadAllText(enbeedignoreFile.FullName, Encoding.UTF8);
