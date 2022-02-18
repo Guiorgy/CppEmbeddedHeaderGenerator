@@ -3,5 +3,5 @@
 *
 # Except this file
 !.gitignore
-# and the .embeedignore file
-!.embeedignore
+# and the .embedignore file
+!.embedignore

@@ -1,5 +1,4 @@
-﻿using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
+﻿using System.Runtime.Serialization;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -15,8 +14,8 @@ namespace CppSampleConsoleAppGenerator
             var OutputDir = projectDir?.Parent?.Parent?.GetDirectories().Where(d => d.Name == "Output").ToList();
             if (OutputDir == null || OutputDir.Count != 1) throw new GenerationException("Couldn't get the Output directory!");
 
-            const string embeededHeaderFileName = "embeeded.h";
-            string embeededHeaderFilePath = Path.Combine(OutputDir[0].FullName, embeededHeaderFileName);
+            const string embeddedHeaderFileName = "embedded.h";
+            string embeddedHeaderFilePath = Path.Combine(OutputDir[0].FullName, embeddedHeaderFileName);
 
             var scaProjectDir = projectDir?.Parent?.GetDirectories().Where(d => d.Name == "SampleConsoleApplication").ToList();
             if (scaProjectDir == null || scaProjectDir.Count != 1) throw new GenerationException("Couldn't get SampleConsoleApplication project directory!");
@@ -25,7 +24,7 @@ namespace CppSampleConsoleAppGenerator
             string scaCodeFilePath = Path.Combine(scaProjectDir[0].FullName, scaCodeFileName);
 
             var code = new StringBuilder()
-                .AppendLine("#include \"../../Output/embeeded.h\"")
+                .AppendLine("#include \"../../Output/embedded.h\"")
                 .AppendLine("#include <iostream>")
                 .AppendLine("#include <fstream>")
                 .AppendLine()
@@ -34,20 +33,20 @@ namespace CppSampleConsoleAppGenerator
                 .AppendLine("\tstd::ofstream file;")
                 .AppendLine();
 
-            var resources = GetResources(embeededHeaderFilePath);
+            var resources = GetResources(embeddedHeaderFilePath);
             foreach (var resource in resources)
             {
-                code.AppendLine($"\tstd::cout << \"Extracting the \\\"\" << embeed::{resource.FileName} << \"\\\" resource file.\" << std::endl;");
+                code.AppendLine($"\tstd::cout << \"Extracting the \\\"\" << embedded::{resource.FileName} << \"\\\" resource file.\" << std::endl;");
                 switch (resource.Type)
                 {
                     case Resource.ResourceType.ASCII:
-                        code.AppendLine($"\tfile.open(embeed::{resource.FileName});");
-                        code.AppendLine($"\tfile << embeed::{resource.ResourceName};");
+                        code.AppendLine($"\tfile.open(embedded::{resource.FileName});");
+                        code.AppendLine($"\tfile << embedded::{resource.ResourceName};");
                         code.AppendLine("\tfile.close();");
                         break;
                     case Resource.ResourceType.Binary:
-                        code.AppendLine($"\tfile.open(embeed::{resource.FileName}, std::ios::out | std::ios::binary);");
-                        code.AppendLine($"\tfile.write((char*)&embeed::{resource.ResourceName}[0], embeed::{resource.SizeName});");
+                        code.AppendLine($"\tfile.open(embedded::{resource.FileName}, std::ios::out | std::ios::binary);");
+                        code.AppendLine($"\tfile.write((char*)&embedded::{resource.ResourceName}[0], embedded::{resource.SizeName});");
                         code.AppendLine("\tfile.close();");
                         break;
                 }
@@ -59,11 +58,11 @@ namespace CppSampleConsoleAppGenerator
             File.WriteAllText(scaCodeFilePath, code.ToString());
         }
 
-        public static List<Resource> GetResources(string embeededHeaderFilePath)
+        public static List<Resource> GetResources(string embeddedHeaderFilePath)
         {
             var resources = new List<Resource>();
 
-            var text = File.ReadAllText(embeededHeaderFilePath);
+            var text = File.ReadAllText(embeddedHeaderFilePath);
             var matches = Regex.Matches(text, "extern __declspec\\(selectany\\) std::string (.*)_name = \"(.*)\";");
             foreach (Match match in matches)
             {

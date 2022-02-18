@@ -11,7 +11,7 @@ namespace Tests
 {
     /**
      *  Before running the tests, make sure to build and run the projects in the following order:
-     *  - CppEmbeededHeaderGenerator
+     *  - CppEmbeddedHeaderGenerator
      *  - CppSampleConsoleAppGenerator
      *  - SampleConsoleApplication
      */
@@ -19,8 +19,8 @@ namespace Tests
     public class TestCppSampleConsoleApp
     {
         static readonly char directorySeparator = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? '\\' : '/';
-        static readonly string embeededDirectoryPath = $"..{directorySeparator}..{directorySeparator}..{directorySeparator}..{directorySeparator}Embeeded";
-        static readonly string embeededHeaderFilePath = $"..{directorySeparator}..{directorySeparator}..{directorySeparator}..{directorySeparator}Output{directorySeparator}embeeded.h";
+        static readonly string embeddedDirectoryPath = $"..{directorySeparator}..{directorySeparator}..{directorySeparator}..{directorySeparator}Embedded";
+        static readonly string embeddedHeaderFilePath = $"..{directorySeparator}..{directorySeparator}..{directorySeparator}..{directorySeparator}Output{directorySeparator}embedded.h";
 #if DEBUG
         static readonly string cppSampleAppOutputPath = $"..{directorySeparator}..{directorySeparator}..{directorySeparator}SampleConsoleApplication{directorySeparator}bin{directorySeparator}x64{directorySeparator}Debug";
 #else
@@ -43,19 +43,19 @@ namespace Tests
 
         public TestCppSampleConsoleApp()
         {
-            var files = ListFilePaths(embeededDirectoryPath);
+            var files = ListFilePaths(embeddedDirectoryPath);
 
-            var enbeedignoreFile = new FileInfo(Path.Combine(embeededDirectoryPath, ".embeedignore"));
+            var enbeedignoreFile = new FileInfo(Path.Combine(embeddedDirectoryPath, ".embedignore"));
             string enbeedignore = File.ReadAllText(enbeedignoreFile.FullName, Encoding.UTF8);
             var parser = new GitignoreParser(enbeedignore);
 
-            DirectoryInfo enbeedDir = new(embeededDirectoryPath);
+            DirectoryInfo enbeedDir = new(embeddedDirectoryPath);
             int enbeedDirPathLen = enbeedDir.FullName.Length + 1;
 
-            var embeeded = files.Where(file => parser.Accepts(file)).Select(path => path[enbeedDirPathLen..]).ToList();
-            embeeded.Remove(enbeedignoreFile.Name);
+            var embedded = files.Where(file => parser.Accepts(file)).Select(path => path[enbeedDirPathLen..]).ToList();
+            embedded.Remove(enbeedignoreFile.Name);
 
-            embeededFiles = embeeded.Select(file =>
+            embeddedFiles = embedded.Select(file =>
             {
                 var name = file.Contains(directorySeparator) ? file[(file.LastIndexOf(directorySeparator) + 1)..] : file;
                 if (name.StartsWith("ascii_")) name = name[6..];
@@ -67,43 +67,43 @@ namespace Tests
             extractedFiles = ListFilePaths(cppSampleAppOutputPath).Select(path => path[cppSampleAppDirPathLen..]).ToList();
         }
 
-        private readonly List<(string original, string extracted)> embeededFiles;
+        private readonly List<(string original, string extracted)> embeddedFiles;
         private readonly List<string> extractedFiles;
 
         [TestMethod]
-        public void TestEmbeededHeadedFileContainsAllFileNames()
+        public void TestEmbeddedHeadedFileContainsAllFileNames()
         {
-            if (embeededFiles.Count == 0) Assert.Inconclusive("No files to embeed. Stopping the test!");
+            if (embeddedFiles.Count == 0) Assert.Inconclusive("No files to embedded. Stopping the test!");
 
-            Assert.IsTrue(File.Exists(embeededHeaderFilePath), "The \"embeeded.h\" header file not found!");
-            string embeededHeaderText = File.ReadAllText(embeededHeaderFilePath);
+            Assert.IsTrue(File.Exists(embeddedHeaderFilePath), "The \"embedded.h\" header file not found!");
+            string embeddedHeaderText = File.ReadAllText(embeddedHeaderFilePath);
 
-            foreach (var (original, extracted) in embeededFiles)
-                Assert.IsTrue(embeededHeaderText.Contains($"= \"{extracted}\";"), $"\"{original}\" file wasn't embeeded!");
+            foreach (var (original, extracted) in embeddedFiles)
+                Assert.IsTrue(embeddedHeaderText.Contains($"= \"{extracted}\";"), $"\"{original}\" file wasn't embedded!");
         }
 
         [TestMethod]
         public void TestAllFilesWereExtracted()
         {
-            if (embeededFiles.Count == 0) Assert.Inconclusive("No files to embeed. Stopping the test!");
+            if (embeddedFiles.Count == 0) Assert.Inconclusive("No files to embedded. Stopping the test!");
 
-            foreach (var (original, extracted) in embeededFiles)
+            foreach (var (original, extracted) in embeddedFiles)
                 Assert.IsTrue(extractedFiles.Contains(extracted), $"\"{original}\" file wasn't extracted!");
         }
 
         [TestMethod]
         public void TestExtractedFileChecksums()
         {
-            if (embeededFiles.Count == 0) Assert.Inconclusive("No files to embeed. Stopping the test!");
+            if (embeddedFiles.Count == 0) Assert.Inconclusive("No files to embedded. Stopping the test!");
 
             using var md5 = MD5.Create();
 
-            foreach (var (original, extracted) in embeededFiles)
+            foreach (var (original, extracted) in embeddedFiles)
             {
                 var extractedFilePath = Path.Combine(cppSampleAppOutputPath, extracted);
                 Assert.IsTrue(File.Exists(extractedFilePath), $"\"{original}\" file wasn't extracted!");
 
-                using var originalStream = File.OpenRead(Path.Combine(embeededDirectoryPath, original));
+                using var originalStream = File.OpenRead(Path.Combine(embeddedDirectoryPath, original));
                 using var extractedStream = File.OpenRead(extractedFilePath);
 
                 var originalChecksum = Encoding.Default.GetString(md5.ComputeHash(originalStream));

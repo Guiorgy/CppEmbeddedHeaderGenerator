@@ -8,7 +8,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace CppEmbeededHeaderGenerator
+namespace CppEmbeddedHeaderGenerator
 {
     public static class Program
     {
@@ -40,18 +40,18 @@ namespace CppEmbeededHeaderGenerator
 
         static void Main(string[] args)
         {
-            const string embeededPath = @"..\..\..\Embeeded";
+            const string embeddedPath = @"..\..\..\Embedded";
 
-            var files = ListFilePaths(embeededPath);
+            var files = ListFilePaths(embeddedPath);
 
-            var enbeedignoreFile = new FileInfo(Path.Combine(embeededPath, ".embeedignore"));
+            var enbeedignoreFile = new FileInfo(Path.Combine(embeddedPath, ".embedignore"));
             string enbeedignore = File.ReadAllText(enbeedignoreFile.FullName, Encoding.UTF8);
             var parser = new GitignoreParser(enbeedignore);
 
             var accepted = files.Where(file => parser.Accepts(file)).ToList();
             accepted.Remove(enbeedignoreFile.FullName);
 
-            Console.WriteLine("Files to embeed:");
+            Console.WriteLine("Files to embedded:");
             foreach (string file in accepted)
                 Console.WriteLine(file);
             Console.WriteLine();
@@ -60,15 +60,15 @@ namespace CppEmbeededHeaderGenerator
             var outputDir = new DirectoryInfo(outputPath);
             if (!outputDir.Exists)
                 outputDir.Create();
-            const string resourceFilePath = @"..\..\..\Output\embeeded.h";
+            const string resourceFilePath = @"..\..\..\Output\embedded.h";
 
             using StreamWriter writer = new(resourceFilePath, false, Encoding.UTF8);
-            writer.WriteLine("#ifndef EMBEEDED_RESOURCES_HEADER_FILE");
-            writer.WriteLine("#define EMBEEDED_RESOURCES_HEADER_FILE");
+            writer.WriteLine("#ifndef EMBEDDED_RESOURCES_HEADER_FILE");
+            writer.WriteLine("#define EMBEDDED_RESOURCES_HEADER_FILE");
             writer.WriteLine("");
             writer.WriteLine("#include <string>");
             writer.WriteLine("");
-            writer.WriteLine("namespace embeed");
+            writer.WriteLine("namespace embedded");
             writer.WriteLine("{");
             writer.WriteLine("");
             writer.WriteLine("\tstd::string empty = \"\";");
