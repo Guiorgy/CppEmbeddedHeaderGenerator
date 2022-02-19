@@ -92,10 +92,13 @@ namespace CppEmbeddedHeaderGenerator
                 .AppendLine("\t\treturn false;")
                 .AppendLine("\t}")
                 .AppendLine()
-                .AppendLine("\tvoid extractAll(std::string const outputDir = \".\")")
+                .AppendLine("\tvoid extractAll(std::string const outputDir = \".\", bool verbose = false)")
                 .AppendLine("\t{")
                 .AppendLine("\t\tif (outputDir != \".\")")
+                .AppendLine("\t\t{")
+                .AppendLine("\t\t\tif (verbose) std::cout << \"Creating the \\\"\" << outputDir << \"\\\" directory.\" << std::endl;")
                 .AppendLine("\t\t\tstd::filesystem::create_directory(outputDir);")
+                .AppendLine("\t\t}")
                 .AppendLine()
                 .AppendLine("\t\tstd::string dirPath;")
                 .AppendLine("\t\tstd::ofstream file;")
@@ -104,10 +107,14 @@ namespace CppEmbeddedHeaderGenerator
             var resources = GetResources(embeddedHeaderFilePath);
             foreach (var resource in resources)
             {
-                code.AppendLine($"\t\tstd::cout << \"Extracting the \\\"\" << embedded::{resource.FileName} << \"\\\" resource file.\" << std::endl;");
+                code.AppendLine($"\t\tif (verbose) std::cout << \"Extracting the \\\"\" << embedded::{resource.FileName} << \"\\\" resource file.\" << std::endl;");
 
                 code.AppendLine($"\t\tif (getDirectory(embedded::{resource.FileName}, dirPath))")
-                    .AppendLine("\t\t\tstd::filesystem::create_directory(outputDir + \"/\" + dirPath);");
+                    .AppendLine("\t\t{")
+                    .AppendLine("\t\t\tdirPath = outputDir + \"/\" + dirPath;")
+                    .AppendLine("\t\t\tif (verbose) std::cout << \"Creating the \\\"\" << dirPath << \"\\\" directory.\" << std::endl;")
+                    .AppendLine("\t\t\tstd::filesystem::create_directory(dirPath);")
+                    .AppendLine("\t\t}");
 
                 switch (resource.Type)
                 {
