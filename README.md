@@ -49,7 +49,7 @@ namespace embedded
 {
 
     std::string empty = "";
-    extern __declspec(selectany) std::string LoremIpsum_txt_name = "Lorem Ipsum.txt";
+    extern __declspec(selectany) std::string LoremIpsum_txt_name = "LoremIpsum.txt";
     extern __declspec(selectany) std::string LoremIpsum_txt = empty
         + "Lorem ipsum dolor sit amet, ..."
         ;
