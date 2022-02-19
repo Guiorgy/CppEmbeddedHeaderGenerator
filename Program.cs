@@ -7,10 +7,10 @@ namespace CppEmbeddedHeaderGenerator
     {
         public class Options
         {
-            [Option('e', "embedded-dir", Required = true, HelpText = "Path to the directory containing the files to embedd.")]
+            [Option('e', "embedded-dir", Required = true, HelpText = "Path to the directory containing the files to embed.")]
             public string EmbeddedDirectoryPath { get; set; } = Environment.CurrentDirectory;
 
-            [Option('i', "ignorefile", Required = false, HelpText = "Path to the ignore file (in the format of a .gitignore). By default \".embedignore\" in the same directory as the files to embedd.")]
+            [Option('i', "ignorefile", Required = false, HelpText = "Path to the ignore file (in the format of a .gitignore). By default \".embedignore\" in the same directory as the files to embed.")]
             public string? IgnoreFilePath { get; set; } = null;
 
             [Option('o', "output-dir", Required = false, HelpText = "Path to the output directory. By default current directory.")]
