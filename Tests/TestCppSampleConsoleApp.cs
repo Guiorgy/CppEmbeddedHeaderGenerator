@@ -12,7 +12,6 @@ namespace Tests
     /**
      *  Before running the tests, make sure to build and run the projects in the following order:
      *  - CppEmbeddedHeaderGenerator
-     *  - CppSampleConsoleAppGenerator
      *  - SampleConsoleApplication
      */
     [TestClass]

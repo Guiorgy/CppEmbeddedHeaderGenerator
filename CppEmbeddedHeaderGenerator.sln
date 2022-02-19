@@ -7,18 +7,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CppEmbeddedHeaderGenerator"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "Tests\Tests.csproj", "{7D4C8C2C-9D22-41A8-81E7-B0873D715BF9}"
 	ProjectSection(ProjectDependencies) = postProject
-		{34BD7A81-D828-4A2D-A6E6-9691465D9E79} = {34BD7A81-D828-4A2D-A6E6-9691465D9E79}
 		{37760DD3-8286-4F7F-948E-69CBC87EE908} = {37760DD3-8286-4F7F-948E-69CBC87EE908}
 		{DB44B3F2-DD5A-4D1D-8688-2F618D93475E} = {DB44B3F2-DD5A-4D1D-8688-2F618D93475E}
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SampleConsoleApplication", "Tests\SampleConsoleApplication\SampleConsoleApplication.vcxproj", "{DB44B3F2-DD5A-4D1D-8688-2F618D93475E}"
-	ProjectSection(ProjectDependencies) = postProject
-		{34BD7A81-D828-4A2D-A6E6-9691465D9E79} = {34BD7A81-D828-4A2D-A6E6-9691465D9E79}
-		{37760DD3-8286-4F7F-948E-69CBC87EE908} = {37760DD3-8286-4F7F-948E-69CBC87EE908}
-	EndProjectSection
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CppSampleConsoleAppGenerator", "Tests\CppSampleConsoleAppGenerator\CppSampleConsoleAppGenerator.csproj", "{34BD7A81-D828-4A2D-A6E6-9691465D9E79}"
 	ProjectSection(ProjectDependencies) = postProject
 		{37760DD3-8286-4F7F-948E-69CBC87EE908} = {37760DD3-8286-4F7F-948E-69CBC87EE908}
 	EndProjectSection
@@ -69,18 +62,6 @@ Global
 		{DB44B3F2-DD5A-4D1D-8688-2F618D93475E}.Release|x64.Build.0 = Release|x64
 		{DB44B3F2-DD5A-4D1D-8688-2F618D93475E}.Release|x86.ActiveCfg = Release|Win32
 		{DB44B3F2-DD5A-4D1D-8688-2F618D93475E}.Release|x86.Build.0 = Release|Win32
-		{34BD7A81-D828-4A2D-A6E6-9691465D9E79}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{34BD7A81-D828-4A2D-A6E6-9691465D9E79}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{34BD7A81-D828-4A2D-A6E6-9691465D9E79}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{34BD7A81-D828-4A2D-A6E6-9691465D9E79}.Debug|x64.Build.0 = Debug|Any CPU
-		{34BD7A81-D828-4A2D-A6E6-9691465D9E79}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{34BD7A81-D828-4A2D-A6E6-9691465D9E79}.Debug|x86.Build.0 = Debug|Any CPU
-		{34BD7A81-D828-4A2D-A6E6-9691465D9E79}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{34BD7A81-D828-4A2D-A6E6-9691465D9E79}.Release|Any CPU.Build.0 = Release|Any CPU
-		{34BD7A81-D828-4A2D-A6E6-9691465D9E79}.Release|x64.ActiveCfg = Release|Any CPU
-		{34BD7A81-D828-4A2D-A6E6-9691465D9E79}.Release|x64.Build.0 = Release|Any CPU
-		{34BD7A81-D828-4A2D-A6E6-9691465D9E79}.Release|x86.ActiveCfg = Release|Any CPU
-		{34BD7A81-D828-4A2D-A6E6-9691465D9E79}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
