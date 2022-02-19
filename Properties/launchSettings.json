@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "CppEmbeddedHeaderGenerator": {
+      "commandName": "Project",
+      "commandLineArgs": "-e $(ProjectDir)Embedded -o $(ProjectDir)Output"
+    }
+  }
+}
