@@ -81,7 +81,7 @@ namespace CppEmbeddedHeaderGenerator
                 .AppendLine("namespace embedded")
                 .AppendLine("{")
                 .AppendLine()
-                .AppendLine("\tbool getDirectory(std::string const& filePath, std::string& directoryPath)")
+                .AppendLine("\tbool _getDirectory(std::string const& filePath, std::string& directoryPath)")
                 .AppendLine("\t{")
                 .AppendLine("\t\tstd::string::size_type pos = filePath.find_last_of('/');")
                 .AppendLine("\t\tif (pos != std::string::npos)")
@@ -109,7 +109,7 @@ namespace CppEmbeddedHeaderGenerator
             {
                 code.AppendLine($"\t\tif (verbose) std::cout << \"Extracting the \\\"\" << embedded::{resource.FileName} << \"\\\" resource file.\" << std::endl;");
 
-                code.AppendLine($"\t\tif (getDirectory(embedded::{resource.FileName}, dirPath))")
+                code.AppendLine($"\t\tif (_getDirectory(embedded::{resource.FileName}, dirPath))")
                     .AppendLine("\t\t{")
                     .AppendLine("\t\t\tdirPath = outputDir + \"/\" + dirPath;")
                     .AppendLine("\t\t\tif (verbose) std::cout << \"Creating the \\\"\" << dirPath << \"\\\" directory.\" << std::endl;")
