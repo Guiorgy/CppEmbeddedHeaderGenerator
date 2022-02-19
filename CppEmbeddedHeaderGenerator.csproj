@@ -8,6 +8,11 @@
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
     <PlatformTarget>x64</PlatformTarget>
     <Nullable>enable</Nullable>
+    <Description>Generate a cpp header file containing variables with the contents of files.</Description>
+    <Copyright>Ecopre</Copyright>
+    <PackageProjectUrl>https://github.com/Guiorgy/CppEmbeddedHeaderGenerator</PackageProjectUrl>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryUrl>https://github.com/Guiorgy/CppEmbeddedHeaderGenerator</RepositoryUrl>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -36,6 +41,13 @@
   <ItemGroup>
     <PackageReference Include="CommandLineParser" Version="2.8.0" />
     <PackageReference Include="GitignoreParserNet" Version="0.2.0.9" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
   </ItemGroup>
 
 </Project>
