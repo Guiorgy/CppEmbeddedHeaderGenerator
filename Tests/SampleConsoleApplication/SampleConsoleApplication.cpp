@@ -2,8 +2,11 @@
 #include "../../Output/embedded-extractor.h"
 #include <iostream>
 
-int main()
+int main(int argc, char* argv[])
 {
-	embedded::extractAll();
+	if (argc > 1)
+		embedded::extractAll(argv[1]);
+	else
+		embedded::extractAll();
 	return 0;
 }
