@@ -68,11 +68,11 @@ namespace CppEmbeddedHeaderGenerator
                 .AppendLine("#define EMBEDDED_RESOURCES_HEADER_FILE")
                 .AppendLine()
                 .AppendLine("#include <string>")
+                .AppendLine("#include <array>")
                 .AppendLine()
                 .AppendLine("namespace embedded")
                 .AppendLine("{")
-                .AppendLine()
-                .AppendLine("\tstd::string empty = \"\";");
+                .AppendLine();
 
             var embeddedDir = new DirectoryInfo(embeddedDirectoryPath);
             int embeddedDirPathLen = embeddedDir.FullName.Length + (embeddedDir.FullName.EndsWith(directorySeparator) ? 0 : 1);
@@ -106,7 +106,7 @@ namespace CppEmbeddedHeaderGenerator
                     resname = '_' + resname;
 
                 Console.WriteLine($"Creating a {(isAscii ? "string" : "byte array")} resource with name \"{resname}\"");
-                code.AppendLine($"\textern __declspec(selectany) std::string {resname}_name = \"{name.Replace('\\', '/')}\";");
+                code.AppendLine($"\textern __declspec(selectany) constexpr std::string_view {resname}_name = std::string_view(\"{name.Replace('\\', '/')}\");");
 
                 if (isAscii)
                 {
@@ -116,28 +116,27 @@ namespace CppEmbeddedHeaderGenerator
                             .Replace(@"\", @"\\")
                             .Replace(@"""", @"\""");
                     }
-                    code.AppendLine($"\textern __declspec(selectany) std::string {resname} = empty");
+                    code.Append($"\textern __declspec(selectany) constexpr std::string_view {resname} = std::string_view(\"");
                     var lines = File.ReadLines(filePath, Encoding.ASCII).ToList();
                     for (int i = 0; i < lines.Count - 1; i++)
                     {
                         var line = lines[i];
-                        code.AppendLine($"\t\t+ \"{PrepareLane(line)}{lineSeparator}\"");
+                        code.Append($"{PrepareLane(line)}{lineSeparator}");
                     }
-                    code.AppendLine($"\t\t+ \"{PrepareLane(lines.Last())}\"")
-                        .AppendLine($"\t\t;");
+                    code.AppendLine($"{PrepareLane(lines.Last())}\");");
                 }
                 else
                 {
                     bool first = true;
                     byte[] bytes = File.ReadAllBytes(filePath);
-                    code.AppendLine($"\textern __declspec(selectany) int {resname}_size = {bytes.Length};")
-                        .Append($"\textern __declspec(selectany) unsigned char {resname}[{bytes.Length}] = {{");
+                    code.AppendLine($"\textern __declspec(selectany) constexpr int {resname}_size = {bytes.Length};")
+                        .Append($"\textern __declspec(selectany) constexpr std::array<unsigned char, {bytes.Length}> {resname} = {{");
                     foreach (byte b in bytes)
                     {
-                        code.Append($"{(first ? "" : ",")} {b}");
+                        code.Append($"{(first ? "" : ",")}{b}");
                         first = false;
                     }
-                    code.AppendLine($" }};");
+                    code.AppendLine($"}};");
                 }
             }
 

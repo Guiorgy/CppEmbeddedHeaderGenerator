@@ -38,20 +38,20 @@ namespace CppEmbeddedHeaderGenerator
             var resources = new List<Resource>();
 
             var text = File.ReadAllText(embeddedHeaderFilePath);
-            var matches = Regex.Matches(text, "extern __declspec\\(selectany\\) std::string (.*)_name = \"(.*)\";");
+            var matches = Regex.Matches(text, "extern __declspec\\(selectany\\) constexpr std::string_view (.*)_name = std::string_view\\(\"(.*)\"\\);");
             foreach (Match match in matches)
             {
                 var res = match.Groups[1].Value;
                 var name = $"{res}_name";
 
-                var ascii = Regex.Matches(text, $"extern __declspec\\(selectany\\) std::string {res} = ");
+                var ascii = Regex.Matches(text, $"extern __declspec\\(selectany\\) constexpr std::string_view {res} = ");
                 if (ascii.Count == 1 && ascii[0].Success)
                 {
                     resources.Add(new Resource(name, "", res, Resource.ResourceType.ASCII));
                     continue;
                 }
 
-                var binSize = Regex.Matches(text, $"extern __declspec\\(selectany\\) int {res}_size = (\\d+);");
+                var binSize = Regex.Matches(text, $"extern __declspec\\(selectany\\) constexpr int {res}_size = (\\d+);");
                 if (binSize.Count == 1 && binSize[0].Success)
                 {
                     resources.Add(new Resource(name, $"{res}_size", res, Resource.ResourceType.Binary));
@@ -75,16 +75,14 @@ namespace CppEmbeddedHeaderGenerator
                 .AppendLine("#include \"embedded.h\"")
                 .AppendLine("#include <iostream>")
                 .AppendLine("#include <fstream>")
-                .AppendLine("#include <string>")
                 .AppendLine("#include <filesystem>")
                 .AppendLine()
                 .AppendLine("namespace embedded")
                 .AppendLine("{")
                 .AppendLine()
-                .AppendLine("\tbool _getDirectory(std::string const& filePath, std::string& directoryPath)")
+                .AppendLine("\tbool _getDirectory(const std::string_view filePath, std::string& directoryPath)")
                 .AppendLine("\t{")
-                .AppendLine("\t\tstd::string::size_type pos = filePath.find_last_of('/');")
-                .AppendLine("\t\tif (pos != std::string::npos)")
+                .AppendLine("\t\tif (std::string::size_type pos = filePath.find_last_of('/'); pos != std::string::npos)")
                 .AppendLine("\t\t{")
                 .AppendLine("\t\t\tdirectoryPath = filePath.substr(0, pos);")
                 .AppendLine("\t\t\treturn true;")
@@ -119,13 +117,13 @@ namespace CppEmbeddedHeaderGenerator
                 switch (resource.Type)
                 {
                     case Resource.ResourceType.ASCII:
-                        code.AppendLine($"\t\tfile.open(outputDir + \"/\" + embedded::{resource.FileName});");
+                        code.AppendLine($"\t\tfile.open(outputDir + \"/\" + embedded::{resource.FileName}.data());");
                         code.AppendLine($"\t\tfile << embedded::{resource.ResourceName};");
                         code.AppendLine("\t\tfile.close();");
                         break;
                     case Resource.ResourceType.Binary:
-                        code.AppendLine($"\t\tfile.open(outputDir + \"/\" + embedded::{resource.FileName}, std::ios::out | std::ios::binary);");
-                        code.AppendLine($"\t\tfile.write((char*)&embedded::{resource.ResourceName}[0], embedded::{resource.SizeName});");
+                        code.AppendLine($"\t\tfile.open(outputDir + \"/\" + embedded::{resource.FileName}.data(), std::ios::out | std::ios::binary);");
+                        code.AppendLine($"\t\tfile.write((const char*)&embedded::{resource.ResourceName}[0], embedded::{resource.SizeName});");
                         code.AppendLine("\t\tfile.close();");
                         break;
                 }

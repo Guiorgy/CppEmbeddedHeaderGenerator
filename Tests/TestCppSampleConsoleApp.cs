@@ -78,7 +78,7 @@ namespace Tests
             string embeddedHeaderText = File.ReadAllText(embeddedHeaderFilePath);
 
             foreach (var (original, extracted) in embeddedFiles)
-                Assert.IsTrue(embeddedHeaderText.Contains($"= \"{extracted.Replace(directorySeparator, '/')}\";"), $"\"{original}\" file wasn't embedded!");
+                Assert.IsTrue(embeddedHeaderText.Contains($"= std::string_view(\"{extracted.Replace(directorySeparator, '/')}\");"), $"\"{original}\" file wasn't embedded!");
         }
 
         [TestMethod]
