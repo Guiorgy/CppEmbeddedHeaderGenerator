@@ -106,6 +106,9 @@
     <PreBuildEvent>
       <Command>del /s /q "bin\$(Platform)\$(Configuration)\" &amp;&amp; rmdir /s /q "bin\$(Platform)\$(Configuration)\"</Command>
     </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>bin\$(Platform)\$(Configuration)\$(ProjectName).exe ".\bin\$(Platform)\$(Configuration)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -127,6 +130,9 @@
     <PreBuildEvent>
       <Command>del /s /q "bin\$(Platform)\$(Configuration)\" &amp;&amp; rmdir /s /q "bin\$(Platform)\$(Configuration)\"</Command>
     </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>bin\$(Platform)\$(Configuration)\$(ProjectName).exe ".\bin\$(Platform)\$(Configuration)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -144,6 +150,9 @@
     <PreBuildEvent>
       <Command>del /s /q "bin\$(Platform)\$(Configuration)\" &amp;&amp; rmdir /s /q "bin\$(Platform)\$(Configuration)\"</Command>
     </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>bin\$(Platform)\$(Configuration)\$(ProjectName).exe ".\bin\$(Platform)\$(Configuration)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -165,6 +174,9 @@
     <PreBuildEvent>
       <Command>del /s /q "bin\$(Platform)\$(Configuration)\" &amp;&amp; rmdir /s /q "bin\$(Platform)\$(Configuration)\"</Command>
     </PreBuildEvent>
+    <PostBuildEvent>
+      <Command>bin\$(Platform)\$(Configuration)\$(ProjectName).exe ".\bin\$(Platform)\$(Configuration)"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="SampleConsoleApplication.cpp" />
