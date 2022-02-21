@@ -93,22 +93,23 @@ namespace CppEmbeddedHeaderGenerator
                 .AppendLine("\t\t}")
                 .AppendLine("\t\treturn false;")
                 .AppendLine("\t}")
-                .AppendLine()
-                .AppendLine("\tvoid extractAll(std::string const outputDir = \".\", bool verbose = false)")
-                .AppendLine("\t{")
-                .AppendLine("\t\tif (outputDir != \".\")")
-                .AppendLine("\t\t{")
-                .AppendLine("\t\t\tif (verbose) std::cout << \"Creating the \\\"\" << outputDir << \"\\\" directory.\" << std::endl;")
-                .AppendLine("\t\t\tstd::filesystem::create_directory(outputDir);")
-                .AppendLine("\t\t}")
-                .AppendLine()
-                .AppendLine("\t\tstd::string dirPath;")
-                .AppendLine("\t\tstd::ofstream file;")
                 .AppendLine();
 
             var resources = GetResources(embeddedHeaderFilePath);
             foreach (var resource in resources)
             {
+                code.AppendLine($"\tvoid extract_{resource.ResourceName}(std::string const outputDir = \".\", bool verbose = false)")
+                    .AppendLine("\t{")
+                    .AppendLine("\t\tif (outputDir != \".\")")
+                    .AppendLine("\t\t{")
+                    .AppendLine("\t\t\tif (verbose) std::cout << \"Creating the \\\"\" << outputDir << \"\\\" directory.\" << std::endl;")
+                    .AppendLine("\t\t\tstd::filesystem::create_directory(outputDir);")
+                    .AppendLine("\t\t}")
+                    .AppendLine()
+                    .AppendLine("\t\tstd::string dirPath;")
+                    .AppendLine("\t\tstd::ofstream file;")
+                    .AppendLine();
+
                 code.AppendLine($"\t\tif (verbose) std::cout << \"Extracting the \\\"\" << embedded::{resource.FileName} << \"\\\" resource file.\" << std::endl;");
 
                 code.AppendLine($"\t\tif (_getDirectory(embedded::{resource.FileName}, dirPath))")
@@ -131,8 +132,20 @@ namespace CppEmbeddedHeaderGenerator
                         code.AppendLine("\t\tfile.close();");
                         break;
                 }
-                code.AppendLine();
+                code.AppendLine("\t}")
+                    .AppendLine();
             }
+
+            code.AppendLine("\tvoid extractAll(std::string const outputDir = \".\", bool verbose = false)")
+                .AppendLine("\t{")
+                .AppendLine("\t\tif (outputDir != \".\")")
+                .AppendLine("\t\t{")
+                .AppendLine("\t\t\tif (verbose) std::cout << \"Creating the \\\"\" << outputDir << \"\\\" directory.\" << std::endl;")
+                .AppendLine("\t\t\tstd::filesystem::create_directory(outputDir);")
+                .AppendLine("\t\t}")
+                .AppendLine();
+            foreach (var res in resources)
+                code.AppendLine($"\t\textract_{res.ResourceName}(outputDir, verbose);");
 
             code.AppendLine("\t}")
                 .AppendLine()
