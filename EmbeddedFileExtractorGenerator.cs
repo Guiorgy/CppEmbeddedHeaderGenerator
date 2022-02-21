@@ -72,6 +72,10 @@ namespace CppEmbeddedHeaderGenerator
                 .AppendLine("#ifndef EMBEDDED_RESOURCES_EXTRACTOR_HEADER_FILE")
                 .AppendLine("#define EMBEDDED_RESOURCES_EXTRACTOR_HEADER_FILE")
                 .AppendLine()
+                .AppendLine("#if __cplusplus < 201703L")
+                .AppendLine("#error The \"embedded\" namespace needs at least a C++17 compliant compiler")
+                .AppendLine("#endif")
+                .AppendLine()
                 .AppendLine("#include \"embedded.h\"")
                 .AppendLine("#include <iostream>")
                 .AppendLine("#include <fstream>")
@@ -123,7 +127,7 @@ namespace CppEmbeddedHeaderGenerator
                         break;
                     case Resource.ResourceType.Binary:
                         code.AppendLine($"\t\tfile.open(outputDir + \"/\" + embedded::{resource.FileName}.data(), std::ios::out | std::ios::binary);");
-                        code.AppendLine($"\t\tfile.write((const char*)&embedded::{resource.ResourceName}[0], embedded::{resource.SizeName});");
+                        code.AppendLine($"\t\tfile.write(&embedded::{resource.ResourceName}[0], embedded::{resource.SizeName});");
                         code.AppendLine("\t\tfile.close();");
                         break;
                 }
@@ -131,9 +135,9 @@ namespace CppEmbeddedHeaderGenerator
             }
 
             code.AppendLine("\t}")
-                .AppendLine("")
+                .AppendLine()
                 .AppendLine("}")
-                .AppendLine("")
+                .AppendLine()
                 .AppendLine("#endif");
 
             File.WriteAllText(embeddedFileExtractorFilePath, code.ToString());

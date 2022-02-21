@@ -72,6 +72,16 @@ namespace CppEmbeddedHeaderGenerator
                 .AppendLine()
                 .AppendLine("namespace embedded")
                 .AppendLine("{")
+                .AppendLine()
+                .AppendLine("#if __cplusplus < 202002L")
+                .AppendLine("\ttemplate<typename _Tp, size_t _Nm>")
+                .AppendLine("\t[[nodiscard]]")
+                .AppendLine("\tconstexpr std::array<_Tp, _Nm> to_array(_Tp arr[_Nm]) noexcept {")
+                .AppendLine("\treturn { {std::move(arr[_Nm])} };")
+                .AppendLine("\t}")
+                .AppendLine("#else")
+                .AppendLine("#define to_array std::to_array")
+                .AppendLine("#endif")
                 .AppendLine();
 
             var embeddedDir = new DirectoryInfo(embeddedDirectoryPath);
@@ -127,22 +137,55 @@ namespace CppEmbeddedHeaderGenerator
                 }
                 else
                 {
-                    bool first = true;
                     byte[] bytes = File.ReadAllBytes(filePath);
                     code.AppendLine($"\textern __declspec(selectany) constexpr int {resname}_size = {bytes.Length};")
-                        .Append($"\textern __declspec(selectany) constexpr std::array<unsigned char, {bytes.Length}> {resname} = {{");
+                        .Append($"\textern __declspec(selectany) constexpr char {resname}[{bytes.Length + 1}] = \"");
+                    bool hex = false;
                     foreach (byte b in bytes)
                     {
-                        code.Append($"{(first ? "" : ",")}{b}");
-                        first = false;
+                        string cchar;
+                        if (b == 0)
+                        {
+                            cchar = "\\0";
+                            hex = true;
+                        }
+                        else if (b == 34)
+                            cchar = "\\\"";
+                        else if (b == 92)
+                            cchar = "\\\\";
+                        else
+                        {
+                            if (
+                                // Visible characters
+                                32 <= b && b <= 126
+                                && (!hex
+                                    // Before numbers
+                                    || b <= 47
+                                    // Between numbers and capital letters
+                                    || (58 <= b && b <= 64)
+                                    // Between Capital F and small letters
+                                    || (71 <= b && b <= 96)
+                                    // After small f
+                                    || 103 <= b))
+                            {
+                                cchar = ((char)b).ToString();
+                                hex = false;
+                            }
+                            else
+                            {
+                                cchar = $"\\x{b:X}";
+                                hex = true;
+                            }
+                        }
+                        code.Append(cchar);
                     }
-                    code.AppendLine($"}};");
+                    code.AppendLine($"\";");
                 }
             }
 
-            code.AppendLine("")
+            code.AppendLine()
                 .AppendLine("}")
-                .AppendLine("")
+                .AppendLine()
                 .AppendLine("#endif");
 
             File.WriteAllText(resourceFilePath, code.ToString());
