@@ -118,7 +118,7 @@ namespace CppEmbeddedHeaderGenerator
                 Console.WriteLine($"Creating a {(isAscii ? "string" : "byte array")} resource with name \"{resname}\"");
                 code.AppendLine($"\textern __declspec(selectany) constexpr std::string_view {resname}_name = std::string_view(\"{name.Replace('\\', '/')}\");");
 
-                const int max_c_string_literal_length = 65_000;
+                const int max_c_string_literal_length = 16_300;
                 if (isAscii)
                 {
                     static string PrepareLane(string line)
