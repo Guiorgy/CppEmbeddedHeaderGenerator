@@ -118,6 +118,7 @@ namespace CppEmbeddedHeaderGenerator
                 Console.WriteLine($"Creating a {(isAscii ? "string" : "byte array")} resource with name \"{resname}\"");
                 code.AppendLine($"\textern __declspec(selectany) constexpr std::string_view {resname}_name = std::string_view(\"{name.Replace('\\', '/')}\");");
 
+                const int max_c_string_literal_length = 65_000;
                 if (isAscii)
                 {
                     static string PrepareLane(string line)
@@ -126,18 +127,59 @@ namespace CppEmbeddedHeaderGenerator
                             .Replace(@"\", @"\\")
                             .Replace(@"""", @"\""");
                     }
-                    code.Append($"\textern __declspec(selectany) constexpr std::string_view {resname} = std::string_view(\"");
+                    List<StringBuilder> strings = new();
+                    StringBuilder str = new();
                     var lines = File.ReadLines(filePath, Encoding.ASCII).ToList();
+                    void EmbedLine(string line, bool last = false)
+                    {
+                        if (str.Length + line.Length <= max_c_string_literal_length)
+                        {
+                            str.Append($"{PrepareLane(line)}");
+                            if (!last) str.Append(lineSeparator);
+                        }
+                        else
+                        {
+                            if (str.Length != 0)
+                            {
+                                strings.Add(str);
+                                str = new();
+                            }
+                            if (line.Length <= max_c_string_literal_length)
+                            {
+                                str.Append($"{PrepareLane(line)}");
+                                if (!last) str.Append(lineSeparator);
+                            }
+                            else
+                                foreach (var chunk in line.SplitChunks(max_c_string_literal_length))
+                                    strings.Add(new StringBuilder(chunk));
+                        }
+                    }
                     for (int i = 0; i < lines.Count - 1; i++)
                     {
                         var line = lines[i];
-                        code.Append($"{PrepareLane(line)}{lineSeparator}");
+                        EmbedLine(line);
                     }
-                    code.AppendLine($"{PrepareLane(lines.Last())}\");");
+                    EmbedLine(lines.Last(), true);
+                    if (str.Length != 0) strings.Add(str);
+                    if (strings.Count == 1)
+                    {
+                        code.Append($"\textern __declspec(selectany) constexpr std::string_view {resname} = std::string_view(\"")
+                            .Append(str)
+                            .AppendLine($"\");");
+                    }
+                    else
+                    {
+                        code.AppendLine($"\textern __declspec(selectany) constexpr int {resname}__ascii_chunks = {strings.Count};");
+                        foreach (var (s, i) in strings.Select((s, i) => (s, i)))
+                        {
+                            code.Append($"\textern __declspec(selectany) constexpr std::string_view {resname}__ascii_chunk_{i} = std::string_view(\"")
+                                .Append(s)
+                                .AppendLine($"\");");
+                        }
+                    }
                 }
                 else
                 {
-                    const int max_c_string_literal_length = 65_000;
                     List<(StringBuilder, int) > strings = new();
                     StringBuilder str = new();
                     int len = 0;

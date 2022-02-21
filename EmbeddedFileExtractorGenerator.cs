@@ -31,6 +31,7 @@ namespace CppEmbeddedHeaderGenerator
             public enum ResourceType
             {
                 ASCII,
+                ASCIISplit,
                 Binary,
                 BinarySplit
             }
@@ -52,6 +53,13 @@ namespace CppEmbeddedHeaderGenerator
                 {
                     resources.Add(new Resource(name, new string[] { "" }, res, Resource.ResourceType.ASCII));
                     continue;
+                }
+
+                var asciiChunks = Regex.Matches(text, $"extern __declspec\\(selectany\\) constexpr int {res}__ascii_chunks = (\\d+);");
+                if (asciiChunks.Count == 1 && asciiChunks[0].Success)
+                {
+                    int chunks = int.Parse(asciiChunks[0].Groups[1].Value);
+                    resources.Add(new Resource(name, new string[] { "" }, res, Resource.ResourceType.ASCIISplit, chunks));
                 }
 
                 var binSize = Regex.Matches(text, $"extern __declspec\\(selectany\\) constexpr int {res}_size = (\\d+);");
@@ -136,6 +144,12 @@ namespace CppEmbeddedHeaderGenerator
                     case Resource.ResourceType.ASCII:
                         code.AppendLine($"\t\tfile.open(outputDir + \"/\" + embedded::{resource.FileName}.data());");
                         code.AppendLine($"\t\tfile << embedded::{resource.ResourceName};");
+                        code.AppendLine("\t\tfile.close();");
+                        break;
+                    case Resource.ResourceType.ASCIISplit:
+                        code.AppendLine($"\t\tfile.open(outputDir + \"/\" + embedded::{resource.FileName}.data());");
+                        for (int i = 0; i < resource.SplitChunks; i++)
+                            code.AppendLine($"\t\tfile << embedded::{resource.ResourceName}__ascii_chunk_{i};");
                         code.AppendLine("\t\tfile.close();");
                         break;
                     case Resource.ResourceType.Binary:
