@@ -137,12 +137,20 @@ namespace CppEmbeddedHeaderGenerator
                 }
                 else
                 {
+                    const int max_c_string_literal_length = 65_000;
+                    List<(StringBuilder, int) > strings = new();
+                    StringBuilder str = new();
+                    int len = 0;
                     byte[] bytes = File.ReadAllBytes(filePath);
-                    code.AppendLine($"\textern __declspec(selectany) constexpr int {resname}_size = {bytes.Length};")
-                        .Append($"\textern __declspec(selectany) constexpr char {resname}[{bytes.Length + 1}] = \"");
                     bool hex = false;
                     foreach (byte b in bytes)
                     {
+                        if (str.Length > max_c_string_literal_length)
+                        {
+                            strings.Add((str, len));
+                            str = new();
+                            len = 0;
+                        }
                         string cchar;
                         if (b == 0)
                         {
@@ -177,9 +185,28 @@ namespace CppEmbeddedHeaderGenerator
                                 hex = true;
                             }
                         }
-                        code.Append(cchar);
+                        str.Append(cchar);
+                        len++;
                     }
-                    code.AppendLine($"\";");
+                    if (strings.Count == 0)
+                    {
+                        code.AppendLine($"\textern __declspec(selectany) constexpr int {resname}_size = {bytes.Length};")
+                            .Append($"\textern __declspec(selectany) constexpr char {resname}[{bytes.Length + 1}] = \"")
+                            .Append(str)
+                            .AppendLine($"\";");
+                    }
+                    else
+                    {
+                        strings.Add((str, len));
+                        code.AppendLine($"\textern __declspec(selectany) constexpr int {resname}__blob_chunks = {strings.Count};");
+                        foreach (var ((s, l), i) in strings.Select((sl, i) => (sl, i)))
+                        {
+                            code.AppendLine($"\textern __declspec(selectany) constexpr int {resname}_size_{i} = {l};")
+                            .Append($"\textern __declspec(selectany) constexpr char {resname}__blob_chunk_{i}[{l + 1}] = \"")
+                            .Append(s)
+                            .AppendLine($"\";");
+                        }
+                    }
                 }
             }
 

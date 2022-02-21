@@ -14,22 +14,25 @@ namespace CppEmbeddedHeaderGenerator
         protected class Resource
         {
             public string FileName { get; set; }
-            public string SizeName { get; set; }
+            public string[] SizeNames { get; set; }
             public string ResourceName { get; set; }
+            public int SplitChunks { get; set; }
             public ResourceType Type { get; set; }
 
-            public Resource(string fileName, string sizeName, string resourceName, ResourceType type)
+            public Resource(string fileName, string[] sizeNames, string resourceName, ResourceType type, int splitChunks = 0)
             {
                 FileName = fileName;
-                SizeName = sizeName;
+                SizeNames = sizeNames;
                 ResourceName = resourceName;
                 Type = type;
+                SplitChunks = splitChunks;
             }
 
             public enum ResourceType
             {
                 ASCII,
-                Binary
+                Binary,
+                BinarySplit
             }
         }
 
@@ -47,14 +50,23 @@ namespace CppEmbeddedHeaderGenerator
                 var ascii = Regex.Matches(text, $"extern __declspec\\(selectany\\) constexpr std::string_view {res} = ");
                 if (ascii.Count == 1 && ascii[0].Success)
                 {
-                    resources.Add(new Resource(name, "", res, Resource.ResourceType.ASCII));
+                    resources.Add(new Resource(name, new string[] { "" }, res, Resource.ResourceType.ASCII));
                     continue;
                 }
 
                 var binSize = Regex.Matches(text, $"extern __declspec\\(selectany\\) constexpr int {res}_size = (\\d+);");
                 if (binSize.Count == 1 && binSize[0].Success)
                 {
-                    resources.Add(new Resource(name, $"{res}_size", res, Resource.ResourceType.Binary));
+                    resources.Add(new Resource(name, new string[] { $"{res}_size" }, res, Resource.ResourceType.Binary));
+                }
+
+                var binChunks = Regex.Matches(text, $"extern __declspec\\(selectany\\) constexpr int {res}__blob_chunks = (\\d+);");
+                if (binChunks.Count == 1 && binChunks[0].Success)
+                {
+                    int chunks = int.Parse(binChunks[0].Groups[1].Value);
+                    List<string> sizeNames = new();
+                    for (int i = 0; i < chunks; i++) sizeNames.Add($"{res}_size_{i}");
+                    resources.Add(new Resource(name, sizeNames.ToArray(), res, Resource.ResourceType.BinarySplit, chunks));
                 }
             }
 
@@ -128,7 +140,13 @@ namespace CppEmbeddedHeaderGenerator
                         break;
                     case Resource.ResourceType.Binary:
                         code.AppendLine($"\t\tfile.open(outputDir + \"/\" + embedded::{resource.FileName}.data(), std::ios::out | std::ios::binary);");
-                        code.AppendLine($"\t\tfile.write(&embedded::{resource.ResourceName}[0], embedded::{resource.SizeName});");
+                        code.AppendLine($"\t\tfile.write(&embedded::{resource.ResourceName}[0], embedded::{resource.SizeNames[0]});");
+                        code.AppendLine("\t\tfile.close();");
+                        break;
+                    case Resource.ResourceType.BinarySplit:
+                        code.AppendLine($"\t\tfile.open(outputDir + \"/\" + embedded::{resource.FileName}.data(), std::ios::out | std::ios::binary);");
+                        for (int i = 0; i < resource.SplitChunks; i++)
+                            code.AppendLine($"\t\tfile.write(&embedded::{resource.ResourceName}__blob_chunk_{i}[0], embedded::{resource.SizeNames[i]});");
                         code.AppendLine("\t\tfile.close();");
                         break;
                 }
