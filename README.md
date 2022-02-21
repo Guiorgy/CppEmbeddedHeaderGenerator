@@ -1,10 +1,10 @@
 # CppEmbeddedHeaderGenerator
 
- Generates a simple C++ header with `const std::string` for ASCII files and `const unsigned char` array for binary files.
+ Generates a simple C++ header with `const std::string_view` for ASCII files and `const char` array for binary files.
 
 ## Usage
 
-By default files will be treated as binary data and be stored as a `const unsigned char` array. If you want to be able to access the contents of the file as a `std::string`, then you may prefix the file name with `ascii_` (e.g. `subdir/example.txt` -> `subdir/ascii_example.txt`). Other encodings for text files are currently not supported.
+By default files will be treated as binary data and be stored as a `const char` array. If you want to be able to access the contents of the file as a `std::string_view`, then you may prefix the file name with `ascii_` (e.g. `subdir/example.txt` -> `subdir/ascii_example.txt`). Other encodings for text files are currently not supported.
 
 When you are ready, you may run the executable to generate header files:
 
@@ -16,7 +16,7 @@ When you are ready, you may run the executable to generate header files:
 | `--help` | Display this help screen. |
 | `--version` | Display version information. |
 
-The generated headers (`embedded.h` and `embedded-extractor.h`) will have the resources and the `extractAll(std::string outputDir)` function under the `embedded` namespace.
+The generated headers (`embedded.h` and `embedded-extractor.h`) will have the resources and the `extractAll(std::string outputDir)` function, as well as `extract[FILE NAME](std::string outputDir)` functions under the `embedded` namespace.
 
 ## Example
 
@@ -48,14 +48,19 @@ The result will be:
 namespace embedded
 {
 
-    std::string empty = "";
-    extern __declspec(selectany) std::string LoremIpsum_txt_name = "LoremIpsum.txt";
-    extern __declspec(selectany) std::string LoremIpsum_txt = empty
-        + "Lorem ipsum dolor sit amet, ..."
-        ;
-    extern __declspec(selectany) std::string Hello_World_exe_name = "Hello World.exe";
-    extern __declspec(selectany) int Hello_World_exe_size = 15872;
-    extern __declspec(selectany) unsigned char Hello_World_exe[15872] = { 77, 90, 144, 0, 3, 0, 0, 0, 4, ... };
+    extern __declspec(selectany) constexpr std::string_view LoremIpsum_txt_name = std::string_view("LoremIpsum.txt");
+    extern __declspec(selectany) constexpr int LoremIpsum_txt__ascii_chunks = 3;
+    extern __declspec(selectany) constexpr std::string_view LoremIpsum_txt__ascii_chunk_0 = std::string_view("\n\nLorem ipsum dolor...");
+    extern __declspec(selectany) constexpr std::string_view LoremIpsum_txt__ascii_chunk_1 = std::string_view("Suspendisse condimentum cursus...");
+    extern __declspec(selectany) constexpr std::string_view LoremIpsum_txt__ascii_chunk_2 = std::string_view("Vivamus sodales fringilla...");
+    extern __declspec(selectany) constexpr std::string_view bin_exe_name = std::string_view("bin.exe");
+    extern __declspec(selectany) constexpr int bin_exe__blob_chunks = 3;
+    extern __declspec(selectany) constexpr int bin_exe_size_0 = 16301;
+    extern __declspec(selectany) constexpr char bin_exe__blob_chunk_0[16302] = "MZ\x90\0\x3\0\0\0\x4\0\0\0\xFF...";
+    extern __declspec(selectany) constexpr int bin_exe_size_1 = 16301;
+    extern __declspec(selectany) constexpr char bin_exe__blob_chunk_1[16302] = "\x8B\xFBH\x8B\xD6H\xFM\xF8H...";
+    extern __declspec(selectany) constexpr int bin_exe_size_2 = 16301;
+    extern __declspec(selectany) constexpr char bin_exe__blob_chunk_2[16302] = "\x18I\x89s WATAUAVAWH\x81\xEC..."
 
 }
 
@@ -80,8 +85,7 @@ namespace embedded
 
     bool _getDirectory(std::string const& filePath, std::string& directoryPath)
     {
-        std::string::size_type pos = filePath.find_last_of('/');
-        if (pos != std::string::npos)
+        if (std::string::size_type pos = filePath.find_last_of('/'); pos != std::string::npos)
         {
             directoryPath = filePath.substr(0, pos);
             return true;
@@ -89,7 +93,7 @@ namespace embedded
         return false;
     }
 
-    void extractAll(std::string const outputDir = ".", bool verbose = false)
+    void extract_LoremIpsum_txt(std::string const outputDir = ".", bool verbose = false)
     {
         if (outputDir != ".")
         {
@@ -107,27 +111,58 @@ namespace embedded
             if (verbose) std::cout << "Creating the \"" << dirPath << "\" directory." << std::endl;
             std::filesystem::create_directory(dirPath);
         }
-        file.open(outputDir + "/" + embedded::LoremIpsum_txt_name);
-        file << embedded::LoremIpsum_txt;
+        file.open(outputDir + "/" + embedded::LoremIpsum_txt_name.data());
+        file << embedded::LoremIpsum_txt__ascii_chunk_0;
+        file << embedded::LoremIpsum_txt__ascii_chunk_1;
+        file << embedded::LoremIpsum_txt__ascii_chunk_2;
         file.close();
+    }
 
-        if (verbose) std::cout << "Extracting the \"" << embedded::Hello_World_exe_name << "\" resource file." << std::endl;
-        if (_getDirectory(embedded::Hello_World_exe_name, dirPath))
+    void extract_bin_exe(std::string const outputDir = ".", bool verbose = false)
+    {
+        if (outputDir != ".")
+        {
+            if (verbose) std::cout << "Creating the \"" << outputDir << "\" directory." << std::endl;
+            std::filesystem::create_directory(outputDir);
+        }
+
+        std::string dirPath;
+        std::ofstream file;
+
+        if (verbose) std::cout << "Extracting the \"" << embedded::bin_exe_name << "\" resource file." << std::endl;
+        if (_getDirectory(embedded::bin_exe_name, dirPath))
         {
             dirPath = outputDir + "/" + dirPath;
             if (verbose) std::cout << "Creating the \"" << dirPath << "\" directory." << std::endl;
             std::filesystem::create_directory(dirPath);
         }
-        file.open(outputDir + "/" + embedded::Hello_World_exe_name, std::ios::out | std::ios::binary);
-        file.write((char*)&embedded::Hello_World_exe[0], embedded::Hello_World_exe_size);
+        file.open(outputDir + "/" + embedded::bin_exe_name.data(), std::ios::out | std::ios::binary);
+        file.write(&embedded::bin_exe__blob_chunk_0[0], embedded::bin_exe_size_0);
+        file.write(&embedded::bin_exe__blob_chunk_1[0], embedded::bin_exe_size_1);
+        file.write(&embedded::bin_exe__blob_chunk_2[0], embedded::bin_exe_size_2);
         file.close();
+    }
 
+    void extractAll(std::string const outputDir = ".", bool verbose = false)
+    {
+        if (outputDir != ".")
+        {
+            if (verbose) std::cout << "Creating the \"" << outputDir << "\" directory." << std::endl;
+            std::filesystem::create_directory(outputDir);
+        }
+
+        extract_LoremIpsum_txt(outputDir, verbose);
+        extract_bin_exe(outputDir, verbose);
     }
 
 }
 
 #endif
 ```
+
+## Note
+
+The compilation isn't efficient. Embedding a ~50MB file required ~10GB of memory during compilation!
 
 ## MIT License
 
