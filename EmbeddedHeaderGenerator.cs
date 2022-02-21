@@ -187,7 +187,7 @@ namespace CppEmbeddedHeaderGenerator
                     bool hex = false;
                     foreach (byte b in bytes)
                     {
-                        if (str.Length > max_c_string_literal_length)
+                        if (len > max_c_string_literal_length)
                         {
                             strings.Add((str, len));
                             str = new();
