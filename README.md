@@ -13,6 +13,7 @@ When you are ready, you may run the executable to generate header files:
 | `-e, --embedded-dir` | Required. Path to the directory containing the files to embed. |
 | `-i, --ignorefile` | Path to the ignore file (in the format of a .gitignore). By default ".embedignore" in the same directory as the files to embed. |
 | `-o, --output-dir` | Path to the output directory. By default current directory. |
+| `-l, --literal-limit` | The maximum length of a string literal. by default 16300. |
 | `--help` | Display this help screen. |
 | `--version` | Display version information. |
 

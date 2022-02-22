@@ -34,7 +34,7 @@ namespace CppEmbeddedHeaderGenerator
             return files;
         }
 
-        public static void Generate(string embeddedDirectoryPath, string? enbeedignoreFilePath = null, string? outputDirectoryPath = null)
+        public static void Generate(string embeddedDirectoryPath, string? enbeedignoreFilePath = null, string? outputDirectoryPath = null, int maxLiteralStrLen = 16_300)
         {
             var files = ListFilePaths(embeddedDirectoryPath);
 
@@ -117,7 +117,6 @@ namespace CppEmbeddedHeaderGenerator
                 Console.WriteLine($"Creating a {(isAscii ? "string" : "byte array")} resource with name \"{resname}\"");
                 code.Append("\textern __declspec(selectany) constexpr std::string_view ").Append(resname).Append("_name = std::string_view(\"").Append(name.Replace('\\', '/')).AppendLine("\");");
 
-                const int max_c_string_literal_length = 16_300;
                 if (isAscii)
                 {
                     static string PrepareLane(string line)
@@ -131,7 +130,7 @@ namespace CppEmbeddedHeaderGenerator
                     var lines = File.ReadLines(filePath, Encoding.ASCII).ToList();
                     void EmbedLine(string line, bool last = false)
                     {
-                        if (str.Length + line.Length <= max_c_string_literal_length)
+                        if (str.Length + line.Length <= maxLiteralStrLen)
                         {
                             str.Append(PrepareLane(line));
                             if (!last) str.Append(lineSeparator);
@@ -143,13 +142,13 @@ namespace CppEmbeddedHeaderGenerator
                                 strings.Add(str);
                                 str = new();
                             }
-                            if (line.Length <= max_c_string_literal_length)
+                            if (line.Length <= maxLiteralStrLen)
                             {
                                 str.Append(PrepareLane(line));
                                 if (!last) str.Append(lineSeparator);
                             }
                             else
-                                foreach (var chunk in line.SplitChunks(max_c_string_literal_length))
+                                foreach (var chunk in line.SplitChunks(maxLiteralStrLen))
                                     strings.Add(new StringBuilder(chunk));
                         }
                     }
@@ -220,7 +219,7 @@ namespace CppEmbeddedHeaderGenerator
                                 hex = true;
                             }
                         }
-                        if (len == max_c_string_literal_length)
+                        if (len == maxLiteralStrLen)
                         {
                             strings.Add((str, len));
                             str = new();

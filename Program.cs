@@ -15,6 +15,9 @@ namespace CppEmbeddedHeaderGenerator
 
             [Option('o', "output-dir", Required = false, HelpText = "Path to the output directory. By default current directory.")]
             public string OutputDirectoryPath { get; set; } = Environment.CurrentDirectory;
+
+            [Option('l', "literal-limit", Required = false, HelpText = "The maximum length of a string literal. by default 16300.")]
+            public int StringLiteralLimit { get; set; } = 16_300;
         }
 
         static void Main(string[] args)
@@ -22,7 +25,7 @@ namespace CppEmbeddedHeaderGenerator
             Parser.Default.ParseArguments<Options>(args)
                 .WithParsed(o =>
                 {
-                    EmbeddedHeaderGenerator.Generate(o.EmbeddedDirectoryPath, o.IgnoreFilePath, o.OutputDirectoryPath);
+                    EmbeddedHeaderGenerator.Generate(o.EmbeddedDirectoryPath, o.IgnoreFilePath, o.OutputDirectoryPath, o.StringLiteralLimit);
                     EmbeddedFileExtractorGenerator.Generate(o.OutputDirectoryPath);
                 });
         }
