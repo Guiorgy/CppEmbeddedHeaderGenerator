@@ -186,12 +186,6 @@ namespace CppEmbeddedHeaderGenerator
                     bool hex = false;
                     foreach (byte b in bytes)
                     {
-                        if (len > max_c_string_literal_length)
-                        {
-                            strings.Add((str, len));
-                            str = new();
-                            len = 0;
-                        }
                         string cchar;
                         if (b == 0)
                         {
@@ -225,6 +219,12 @@ namespace CppEmbeddedHeaderGenerator
                                 cchar = $"\\x{b:X}";
                                 hex = true;
                             }
+                        }
+                        if (len == max_c_string_literal_length)
+                        {
+                            strings.Add((str, len));
+                            str = new();
+                            len = 0;
                         }
                         str.Append(cchar);
                         len++;
