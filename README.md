@@ -53,14 +53,14 @@ namespace embedded
     extern __declspec(selectany) constexpr std::string_view LoremIpsum_txt__ascii_chunk_0 = std::string_view("\n\nLorem ipsum dolor...");
     extern __declspec(selectany) constexpr std::string_view LoremIpsum_txt__ascii_chunk_1 = std::string_view("Suspendisse condimentum cursus...");
     extern __declspec(selectany) constexpr std::string_view LoremIpsum_txt__ascii_chunk_2 = std::string_view("Vivamus sodales fringilla...");
-    extern __declspec(selectany) constexpr std::string_view bin_exe_name = std::string_view("bin.exe");
-    extern __declspec(selectany) constexpr int bin_exe__blob_chunks = 3;
-    extern __declspec(selectany) constexpr int bin_exe_size_0 = 16301;
-    extern __declspec(selectany) constexpr char bin_exe__blob_chunk_0[16302] = "MZ\x90\0\x3\0\0\0\x4\0\0\0\xFF...";
-    extern __declspec(selectany) constexpr int bin_exe_size_1 = 16301;
-    extern __declspec(selectany) constexpr char bin_exe__blob_chunk_1[16302] = "\x8B\xFBH\x8B\xD6H\xFM\xF8H...";
-    extern __declspec(selectany) constexpr int bin_exe_size_2 = 16301;
-    extern __declspec(selectany) constexpr char bin_exe__blob_chunk_2[16302] = "\x18I\x89s WATAUAVAWH\x81\xEC..."
+    extern __declspec(selectany) constexpr std::string_view Hello_World_name = std::string_view("Hello World.exe");
+    extern __declspec(selectany) constexpr int Hello_World_exe__blob_chunks = 3;
+    extern __declspec(selectany) constexpr int Hello_World_exe_size_0 = 16301;
+    extern __declspec(selectany) constexpr char Hello_World_exe__blob_chunk_0[16302] = "MZ\x90\0\x3\0\0\0\x4\0\0\0\xFF...";
+    extern __declspec(selectany) constexpr int Hello_World_exe_size_1 = 16301;
+    extern __declspec(selectany) constexpr char Hello_World_exe__blob_chunk_1[16302] = "\x8B\xFBH\x8B\xD6H\xFM\xF8H...";
+    extern __declspec(selectany) constexpr int Hello_World_exe_size_2 = 16301;
+    extern __declspec(selectany) constexpr char Hello_World_exe__blob_chunk_2[16302] = "\x18I\x89s WATAUAVAWH\x81\xEC..."
 
 }
 
@@ -118,7 +118,7 @@ namespace embedded
         file.close();
     }
 
-    void extract_bin_exe(std::string const outputDir = ".", bool verbose = false)
+    void extract_Hello_World_exe(std::string const outputDir = ".", bool verbose = false)
     {
         if (outputDir != ".")
         {
@@ -129,17 +129,17 @@ namespace embedded
         std::string dirPath;
         std::ofstream file;
 
-        if (verbose) std::cout << "Extracting the \"" << embedded::bin_exe_name << "\" resource file." << std::endl;
-        if (_getDirectory(embedded::bin_exe_name, dirPath))
+        if (verbose) std::cout << "Extracting the \"" << embedded::Hello_World_exe_name << "\" resource file." << std::endl;
+        if (_getDirectory(embedded::Hello_World_exe_name, dirPath))
         {
             dirPath = outputDir + "/" + dirPath;
             if (verbose) std::cout << "Creating the \"" << dirPath << "\" directory." << std::endl;
             std::filesystem::create_directory(dirPath);
         }
-        file.open(outputDir + "/" + embedded::bin_exe_name.data(), std::ios::out | std::ios::binary);
-        file.write(&embedded::bin_exe__blob_chunk_0[0], embedded::bin_exe_size_0);
-        file.write(&embedded::bin_exe__blob_chunk_1[0], embedded::bin_exe_size_1);
-        file.write(&embedded::bin_exe__blob_chunk_2[0], embedded::bin_exe_size_2);
+        file.open(outputDir + "/" + embedded::Hello_World_exe_name.data(), std::ios::out | std::ios::binary);
+        file.write(&embedded::Hello_World_exe__blob_chunk_0[0], embedded::Hello_World_exe_size_0);
+        file.write(&embedded::Hello_World_exe__blob_chunk_1[0], embedded::Hello_World_exe_size_1);
+        file.write(&embedded::Hello_World_exe__blob_chunk_2[0], embedded::Hello_World_exe_size_2);
         file.close();
     }
 
@@ -152,7 +152,7 @@ namespace embedded
         }
 
         extract_LoremIpsum_txt(outputDir, verbose);
-        extract_bin_exe(outputDir, verbose);
+        extract_Hello_World_exe(outputDir, verbose);
     }
 
 }
