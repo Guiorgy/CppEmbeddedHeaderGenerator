@@ -54,16 +54,16 @@ namespace Tests
             var embedded = files.Where(file => parser.Accepts(file)).Select(path => path[enbeedDirPathLen..]).ToList();
             embedded.Remove(enbeedignoreFile.Name);
 
-            embeddedFiles = embedded.Select(file =>
+            embeddedFiles = embedded.ConvertAll(file =>
             {
                 var name = file.Contains(directorySeparator) ? file[(file.LastIndexOf(directorySeparator) + 1)..] : file;
                 if (name.StartsWith("ascii_")) name = name[6..];
                 return (file, (file.Contains(directorySeparator) ? file[..(file.LastIndexOf(directorySeparator) + 1)] : "") + name);
-            }).ToList();
+            });
 
             DirectoryInfo cppSampleAppDir = new(cppSampleAppOutputPath);
             int cppSampleAppDirPathLen = cppSampleAppDir.FullName.Length + 1;
-            extractedFiles = ListFilePaths(cppSampleAppOutputPath).Select(path => path[cppSampleAppDirPathLen..]).ToList();
+            extractedFiles = ListFilePaths(cppSampleAppOutputPath).ConvertAll(path => path[cppSampleAppDirPathLen..]);
         }
 
         private readonly List<(string original, string extracted)> embeddedFiles;
@@ -91,6 +91,7 @@ namespace Tests
         }
 
         [TestMethod]
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "SCS0006:Weak hashing function.", Justification = "Hashing isn't used for cryptography here.")]
         public void TestExtractedFileChecksums()
         {
             if (embeddedFiles.Count == 0) Assert.Inconclusive("No files to embedded. Stopping the test!");

@@ -118,7 +118,7 @@ namespace CppEmbeddedHeaderGenerator
             var resources = GetResources(embeddedHeaderFilePath);
             foreach (var resource in resources)
             {
-                code.AppendLine($"\tvoid extract_{resource.ResourceName}(std::string const outputDir = \".\", bool verbose = false)")
+                code.Append("\tvoid extract_").Append(resource.ResourceName).AppendLine("(std::string const outputDir = \".\", bool verbose = false)")
                     .AppendLine("\t{")
                     .AppendLine("\t\tif (outputDir != \".\")")
                     .AppendLine("\t\t{")
@@ -130,9 +130,9 @@ namespace CppEmbeddedHeaderGenerator
                     .AppendLine("\t\tstd::ofstream file;")
                     .AppendLine();
 
-                code.AppendLine($"\t\tif (verbose) std::cout << \"Extracting the \\\"\" << embedded::{resource.FileName} << \"\\\" resource file.\" << std::endl;");
+                code.Append("\t\tif (verbose) std::cout << \"Extracting the \\\"\" << embedded::").Append(resource.FileName).AppendLine(" << \"\\\" resource file.\" << std::endl;");
 
-                code.AppendLine($"\t\tif (_getDirectory(embedded::{resource.FileName}, dirPath))")
+                code.Append("\t\tif (_getDirectory(embedded::").Append(resource.FileName).AppendLine(", dirPath))")
                     .AppendLine("\t\t{")
                     .AppendLine("\t\t\tdirPath = outputDir + \"/\" + dirPath;")
                     .AppendLine("\t\t\tif (verbose) std::cout << \"Creating the \\\"\" << dirPath << \"\\\" directory.\" << std::endl;")
@@ -142,25 +142,25 @@ namespace CppEmbeddedHeaderGenerator
                 switch (resource.Type)
                 {
                     case Resource.ResourceType.ASCII:
-                        code.AppendLine($"\t\tfile.open(outputDir + \"/\" + embedded::{resource.FileName}.data());");
-                        code.AppendLine($"\t\tfile << embedded::{resource.ResourceName};");
+                        code.Append("\t\tfile.open(outputDir + \"/\" + embedded::").Append(resource.FileName).AppendLine(".data());");
+                        code.Append("\t\tfile << embedded::").Append(resource.ResourceName).AppendLine(";");
                         code.AppendLine("\t\tfile.close();");
                         break;
                     case Resource.ResourceType.ASCIISplit:
-                        code.AppendLine($"\t\tfile.open(outputDir + \"/\" + embedded::{resource.FileName}.data());");
+                        code.Append("\t\tfile.open(outputDir + \"/\" + embedded::").Append(resource.FileName).AppendLine(".data());");
                         for (int i = 0; i < resource.SplitChunks; i++)
-                            code.AppendLine($"\t\tfile << embedded::{resource.ResourceName}__ascii_chunk_{i};");
+                            code.Append("\t\tfile << embedded::").Append(resource.ResourceName).Append("__ascii_chunk_").Append(i).AppendLine(";");
                         code.AppendLine("\t\tfile.close();");
                         break;
                     case Resource.ResourceType.Binary:
-                        code.AppendLine($"\t\tfile.open(outputDir + \"/\" + embedded::{resource.FileName}.data(), std::ios::out | std::ios::binary);");
-                        code.AppendLine($"\t\tfile.write(&embedded::{resource.ResourceName}[0], embedded::{resource.SizeNames[0]});");
+                        code.Append("\t\tfile.open(outputDir + \"/\" + embedded::").Append(resource.FileName).AppendLine(".data(), std::ios::out | std::ios::binary);");
+                        code.Append("\t\tfile.write(&embedded::").Append(resource.ResourceName).Append("[0], embedded::").Append(resource.SizeNames[0]).AppendLine(");");
                         code.AppendLine("\t\tfile.close();");
                         break;
                     case Resource.ResourceType.BinarySplit:
-                        code.AppendLine($"\t\tfile.open(outputDir + \"/\" + embedded::{resource.FileName}.data(), std::ios::out | std::ios::binary);");
+                        code.Append("\t\tfile.open(outputDir + \"/\" + embedded::").Append(resource.FileName).AppendLine(".data(), std::ios::out | std::ios::binary);");
                         for (int i = 0; i < resource.SplitChunks; i++)
-                            code.AppendLine($"\t\tfile.write(&embedded::{resource.ResourceName}__blob_chunk_{i}[0], embedded::{resource.SizeNames[i]});");
+                            code.Append("\t\tfile.write(&embedded::").Append(resource.ResourceName).Append("__blob_chunk_").Append(i).Append("[0], embedded::").Append(resource.SizeNames[i]).AppendLine(");");
                         code.AppendLine("\t\tfile.close();");
                         break;
                 }
@@ -177,7 +177,7 @@ namespace CppEmbeddedHeaderGenerator
                 .AppendLine("\t\t}")
                 .AppendLine();
             foreach (var res in resources)
-                code.AppendLine($"\t\textract_{res.ResourceName}(outputDir, verbose);");
+                code.Append("\t\textract_").Append(res.ResourceName).AppendLine("(outputDir, verbose);");
 
             code.AppendLine("\t}")
                 .AppendLine()

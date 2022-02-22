@@ -17,7 +17,7 @@ namespace CppEmbeddedHeaderGenerator
             RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? @"\r\n" :
                 RuntimeInformation.IsOSPlatform(OSPlatform.OSX) ? @"\r" : @"\n";*/
 
-        private static readonly string lineSeparator = @"\n";
+        private const string lineSeparator = @"\n";
         private static readonly char directorySeparator = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? '\\' : '/';
 
         private static List<string> ListFilePaths(string directoryPath)
@@ -61,7 +61,6 @@ namespace CppEmbeddedHeaderGenerator
             var outputDir = new DirectoryInfo(outputDirectoryPath ?? Environment.CurrentDirectory ?? Directory.GetCurrentDirectory());
             if (!outputDir.Exists) outputDir.Create();
             string resourceFilePath = outputDir.FullName + directorySeparator + "embedded.h";
-
 
             var code = new StringBuilder()
                 .AppendLine("#ifndef EMBEDDED_RESOURCES_HEADER_FILE")
@@ -116,7 +115,7 @@ namespace CppEmbeddedHeaderGenerator
                     resname = '_' + resname;
 
                 Console.WriteLine($"Creating a {(isAscii ? "string" : "byte array")} resource with name \"{resname}\"");
-                code.AppendLine($"\textern __declspec(selectany) constexpr std::string_view {resname}_name = std::string_view(\"{name.Replace('\\', '/')}\");");
+                code.Append("\textern __declspec(selectany) constexpr std::string_view ").Append(resname).Append("_name = std::string_view(\"").Append(name.Replace('\\', '/')).AppendLine("\");");
 
                 const int max_c_string_literal_length = 16_300;
                 if (isAscii)
@@ -134,7 +133,7 @@ namespace CppEmbeddedHeaderGenerator
                     {
                         if (str.Length + line.Length <= max_c_string_literal_length)
                         {
-                            str.Append($"{PrepareLane(line)}");
+                            str.Append(PrepareLane(line));
                             if (!last) str.Append(lineSeparator);
                         }
                         else
@@ -146,7 +145,7 @@ namespace CppEmbeddedHeaderGenerator
                             }
                             if (line.Length <= max_c_string_literal_length)
                             {
-                                str.Append($"{PrepareLane(line)}");
+                                str.Append(PrepareLane(line));
                                 if (!last) str.Append(lineSeparator);
                             }
                             else
@@ -163,18 +162,18 @@ namespace CppEmbeddedHeaderGenerator
                     if (str.Length != 0) strings.Add(str);
                     if (strings.Count == 1)
                     {
-                        code.Append($"\textern __declspec(selectany) constexpr std::string_view {resname} = std::string_view(\"")
+                        code.Append("\textern __declspec(selectany) constexpr std::string_view ").Append(resname).Append(" = std::string_view(\"")
                             .Append(str)
-                            .AppendLine($"\");");
+                            .AppendLine("\");");
                     }
                     else
                     {
-                        code.AppendLine($"\textern __declspec(selectany) constexpr int {resname}__ascii_chunks = {strings.Count};");
+                        code.Append("\textern __declspec(selectany) constexpr int ").Append(resname).Append("__ascii_chunks = ").Append(strings.Count).AppendLine(";");
                         foreach (var (s, i) in strings.Select((s, i) => (s, i)))
                         {
-                            code.Append($"\textern __declspec(selectany) constexpr std::string_view {resname}__ascii_chunk_{i} = std::string_view(\"")
+                            code.Append("\textern __declspec(selectany) constexpr std::string_view ").Append(resname).Append("__ascii_chunk_").Append(i).Append(" = std::string_view(\"")
                                 .Append(s)
-                                .AppendLine($"\");");
+                                .AppendLine("\");");
                         }
                     }
                 }
@@ -232,21 +231,21 @@ namespace CppEmbeddedHeaderGenerator
                     }
                     if (strings.Count == 0)
                     {
-                        code.AppendLine($"\textern __declspec(selectany) constexpr int {resname}_size = {bytes.Length};")
-                            .Append($"\textern __declspec(selectany) constexpr char {resname}[{bytes.Length + 1}] = \"")
+                        code.Append("\textern __declspec(selectany) constexpr int ").Append(resname).Append("_size = ").Append(bytes.Length).AppendLine(";")
+                            .Append("\textern __declspec(selectany) constexpr char ").Append(resname).Append('[').Append(bytes.Length + 1).Append("] = \"")
                             .Append(str)
-                            .AppendLine($"\";");
+                            .AppendLine("\";");
                     }
                     else
                     {
                         strings.Add((str, len));
-                        code.AppendLine($"\textern __declspec(selectany) constexpr int {resname}__blob_chunks = {strings.Count};");
+                        code.Append("\textern __declspec(selectany) constexpr int ").Append(resname).Append("__blob_chunks = ").Append(strings.Count).AppendLine(";");
                         foreach (var ((s, l), i) in strings.Select((sl, i) => (sl, i)))
                         {
-                            code.AppendLine($"\textern __declspec(selectany) constexpr int {resname}_size_{i} = {l};")
-                            .Append($"\textern __declspec(selectany) constexpr char {resname}__blob_chunk_{i}[{l + 1}] = \"")
+                            code.Append("\textern __declspec(selectany) constexpr int ").Append(resname).Append("_size_").Append(i).Append(" = ").Append(l).AppendLine(";")
+                            .Append("\textern __declspec(selectany) constexpr char ").Append(resname).Append("__blob_chunk_").Append(i).Append('[').Append(l + 1).Append("] = \"")
                             .Append(s)
-                            .AppendLine($"\";");
+                            .AppendLine("\";");
                         }
                     }
                 }
