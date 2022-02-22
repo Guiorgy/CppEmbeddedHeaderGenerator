@@ -83,6 +83,7 @@ namespace CppEmbeddedHeaderGenerator
                 .AppendLine("#endif")
                 .AppendLine();
 
+            HashSet<string> resnames = new();
             var embeddedDir = new DirectoryInfo(embeddedDirectoryPath);
             int embeddedDirPathLen = embeddedDir.FullName.Length + (embeddedDir.FullName.EndsWith(directorySeparator) ? 0 : 1);
             foreach (string filePath in accepted)
@@ -113,6 +114,10 @@ namespace CppEmbeddedHeaderGenerator
                     .Replace($"{directorySeparator}", "_dirSep_");
                 if (Regex.IsMatch(resname, @"^\d"))
                     resname = '_' + resname;
+
+#pragma warning disable S1643 // Strings should not be concatenated using '+' in a loop
+                while (!resnames.Add(resname)) resname += '_';
+#pragma warning restore S1643 // Strings should not be concatenated using '+' in a loop
 
                 Console.WriteLine($"Creating a {(isAscii ? "string" : "byte array")} resource with name \"{resname}\"");
                 code.Append("\textern __declspec(selectany) constexpr std::string_view ").Append(resname).Append("_name = std::string_view(\"").Append(name.Replace('\\', '/')).AppendLine("\");");
