@@ -84,8 +84,8 @@ namespace CppEmbeddedHeaderGenerator
         public static void Generate(string? outputDirectoryPath = null)
         {
             var outputDir = new DirectoryInfo(outputDirectoryPath ?? Environment.CurrentDirectory ?? Directory.GetCurrentDirectory());
-            string embeddedHeaderFilePath = outputDir.FullName + directorySeparator + "embedded.h";
-            string embeddedFileExtractorFilePath = outputDir.FullName + directorySeparator + "embedded-extractor.h";
+            string embeddedHeaderFilePath = outputDir.FullName + directorySeparator + "embedded.hpp";
+            string embeddedFileExtractorFilePath = outputDir.FullName + directorySeparator + "embedded-extractor.hpp";
 
             var code = new StringBuilder()
                 .AppendLine("// This file uses the <filesystem> header, thus it needs to be compiled with a compiler that suports c++17.")
@@ -96,7 +96,7 @@ namespace CppEmbeddedHeaderGenerator
                 .AppendLine("#error The \"embedded\" namespace needs at least a C++17 compliant compiler")
                 .AppendLine("#endif")
                 .AppendLine()
-                .AppendLine("#include \"embedded.h\"")
+                .AppendLine("#include \"embedded.hpp\"")
                 .AppendLine("#include <iostream>")
                 .AppendLine("#include <fstream>")
                 .AppendLine("#include <filesystem>")

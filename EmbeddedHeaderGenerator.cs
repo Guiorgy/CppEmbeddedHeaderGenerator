@@ -60,7 +60,7 @@ namespace CppEmbeddedHeaderGenerator
 
             var outputDir = new DirectoryInfo(outputDirectoryPath ?? Environment.CurrentDirectory ?? Directory.GetCurrentDirectory());
             if (!outputDir.Exists) outputDir.Create();
-            string resourceFilePath = outputDir.FullName + directorySeparator + "embedded.h";
+            string resourceFilePath = outputDir.FullName + directorySeparator + "embedded.hpp";
 
             var code = new StringBuilder()
                 .AppendLine("#ifndef EMBEDDED_RESOURCES_HEADER_FILE")

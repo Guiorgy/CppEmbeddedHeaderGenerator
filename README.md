@@ -17,7 +17,7 @@ When you are ready, you may run the executable to generate header files:
 | `--help` | Display this help screen. |
 | `--version` | Display version information. |
 
-The generated headers (`embedded.h` and `embedded-extractor.h`) will have the resources and the `extractAll(std::string outputDir)` function, as well as `extract[FILE NAME](std::string outputDir)` functions under the `embedded` namespace.
+The generated headers (`embedded.hpp` and `embedded-extractor.hpp`) will have the resources and the `extractAll(std::string outputDir)` function, as well as `extract[FILE NAME](std::string outputDir)` functions under the `embedded` namespace.
 
 ## Example
 
@@ -40,7 +40,7 @@ Run the executable with the necessary arguments:
 The result will be:
 
 ```cpp
-// embedded.h
+// embedded.hpp
 #ifndef EMBEDDED_RESOURCES_HEADER_FILE
 #define EMBEDDED_RESOURCES_HEADER_FILE
 
@@ -69,11 +69,11 @@ namespace embedded
 ```
 
 ```cpp
-// embedded-extractor.h
+// embedded-extractor.hpp
 #ifndef EMBEDDED_RESOURCES_EXTRACTOR_HEADER_FILE
 #define EMBEDDED_RESOURCES_EXTRACTOR_HEADER_FILE
 
-#include "embedded.h"
+#include "embedded.hpp"
 #include <iostream>
 #include <fstream>
 #include <string>

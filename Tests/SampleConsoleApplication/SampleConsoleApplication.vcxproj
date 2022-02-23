@@ -186,8 +186,8 @@
     <ClCompile Include="SampleConsoleApplication.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Output\embedded-extractor.h" />
-    <ClInclude Include="..\..\Output\embedded.h" />
+    <ClInclude Include="..\..\Output\embedded-extractor.hpp" />
+    <ClInclude Include="..\..\Output\embedded.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

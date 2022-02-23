@@ -1,5 +1,5 @@
 // This file uses the <filesystem> header, thus it needs to be compiled with a compiler that suports c++17.
-#include "../../Output/embedded-extractor.h"
+#include "../../Output/embedded-extractor.hpp"
 #include <iostream>
 
 int main(int argc, char* argv[])
