@@ -60,12 +60,14 @@ namespace CppEmbeddedHeaderGenerator
                 {
                     int chunks = int.Parse(asciiChunks[0].Groups[1].Value);
                     resources.Add(new Resource(name, new string[] { "" }, res, Resource.ResourceType.ASCIISplit, chunks));
+                    continue;
                 }
 
                 var binSize = Regex.Matches(text, $"extern __declspec\\(selectany\\) constexpr int {res}_size = (\\d+);");
                 if (binSize.Count == 1 && binSize[0].Success)
                 {
                     resources.Add(new Resource(name, new string[] { $"{res}_size" }, res, Resource.ResourceType.Binary));
+                    continue;
                 }
 
                 var binChunks = Regex.Matches(text, $"extern __declspec\\(selectany\\) constexpr int {res}__blob_chunks = (\\d+);");
